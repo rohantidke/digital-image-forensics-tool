@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeriPix | Professional Digital Image Forensic Suite</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="forensic-theme">
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-shield-halved brand-shield"></i>
+                    <div>
+                        <span class="brand-name">VERIPIX</span>
+                        <span class="brand-tag">DIGITAL FORENSICS</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">FORENSIC WORKBENCH</div>
+                <button class="nav-item active" data-view="view-dashboard">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-view="view-workspace">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Investigation Lab</span>
+                </button>
+                <button class="nav-item" data-view="view-comparator">
+                    <i class="fa-solid fa-code-compare"></i>
+                    <span>Hash & Image Compare</span>
+                </button>
+                <button class="nav-item" data-view="view-history">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>Case History</span>
+                </button>
+
+                <div class="nav-section-title">EVIDENCE TEST SPECIMENS</div>
+                <div class="preset-nav-list" id="presetNavList">
+                    <button class="preset-item" data-sample="sample_authentic.jpg">
+                        <i class="fa-solid fa-camera"></i> Authentic Photo
+                    </button>
+                    <button class="preset-item" data-sample="sample_copy_move_forged.jpg">
+                        <i class="fa-solid fa-clone"></i> Copy-Move Cloning
+                    </button>
+                    <button class="preset-item" data-sample="sample_spliced_tampered.jpg">
+                        <i class="fa-solid fa-object-ungroup"></i> Spliced Photoshop
+                    </button>
+                    <button class="preset-item" data-sample="sample_stego_hidden.png">
+                        <i class="fa-solid fa-mask"></i> Steganography LSB
+                    </button>
+                    <button class="preset-item" data-sample="sample_eof_carved.jpg">
+                        <i class="fa-solid fa-file-zipper"></i> Appended ZIP (EOF)
+                    </button>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-status-box">
+                    <div class="status-row">
+                        <span class="status-dot"></span>
+                        <span class="status-label">Forensic Engine Ready</span>
+                    </div>
+                    <div class="system-specs">
+                        <span>Database: <b>SQLite Persistent</b></span>
+                        <span>Engine: <b>v2.0 Professional</b></span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-layout">
+            <!-- Top App Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="btn-sidebar-toggle" id="btnToggleSidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="breadcrumbs">
+                        <span id="breadcrumbCurrent">Forensic Operations Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="live-stat-pill">
+                        <i class="fa-solid fa-database"></i>
+                        <span>Analyzed: <b id="topbarTotalCases">0</b> Cases</span>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="btnTopNewInvestigation">
+                        <i class="fa-solid fa-plus"></i> New Investigation
+                    </button>
+                </div>
+            </header>
+
+            <!-- Views Container -->
+            <main class="content-scroll">
+                
+                <!-- VIEW 1: DASHBOARD -->
+                <section class="view-panel active" id="view-dashboard">
+                    <div class="dashboard-header-banner">
+                        <div>
+                            <h2>Digital Image Forensics Operations Dashboard</h2>
+                            <p>Real-time analytics, integrity auditing, and empirical anomaly detection across processed evidence files.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="switchView('view-workspace')">
+                            <i class="fa-solid fa-upload"></i> Start New Examination
+                        </button>
+                    </div>
+
+                    <!-- Statistics Summary Cards -->
+                    <div class="stats-cards-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon-wrap icon-blue">
+                                <i class="fa-solid fa-images"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Images Analyzed</span>
+                                <h3 class="stat-value" id="statTotalAnalyzed">0</h3>
+                                <span class="stat-sub">Persisted in SQLite storage</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrap icon-red">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Potential Anomalies</span>
+                                <h3 class="stat-value" id="statPotentialAnomalies">0</h3>
+                                <span class="stat-sub">Flagged for elevated risk</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrap icon-amber">
+                                <i class="fa-solid fa-circle-question"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Inconclusive Artifacts</span>
+                                <h3 class="stat-value" id="statInconclusive">0</h3>
+                                <span class="stat-sub">Mild compression/noise variances</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrap icon-green">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">No Anomaly Detected</span>
+                                <h3 class="stat-value" id="statNoAnomaly">0</h3>
+                                <span class="stat-sub">Baseline camera parameters</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Investigations Table -->
+                    <div class="card table-card">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Evidence Examinations</h3>
+                                <p class="card-subtitle">Latest forensic cases indexed with cryptographic integrity hashes.</p>
+                            </div>
+                            <button class="btn btn-secondary btn-sm" onclick="switchView('view-history')">
+                                View Full Archive <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="forensic-table">
+                                <thead>
+                                    <tr>
+                                        <th>Case Reference</th>
+                                        <th>Evidence File</th>
+                                        <th>Format & Dimensions</th>
+                                        <th>SHA-256 Hash</th>
+                                        <th>Analysis Status</th>
+                                        <th>Score</th>
+                                        <th>Timestamp</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboardRecentTbody">
+                                    <tr><td colspan="8" class="text-center text-muted">No investigations recorded yet. Click 'Start New Examination' to analyze an image.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: INVESTIGATION WORKSPACE -->
+                <section class="view-panel" id="view-workspace">
+                    <!-- Evidence Ingestion Card -->
+                    <div class="card upload-card" id="uploadZoneCard">
+                        <div class="drop-zone" id="dropZone">
+                            <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                            <h3>Ingest Digital Evidence Image</h3>
+                            <p>Drag and drop image here or browse your file system.</p>
+                            <span class="upload-limits">Permissible: JPEG, PNG, WebP, TIFF, BMP | Max: 25 MB | Validated via Magic Bytes</span>
+                            <div class="drop-actions">
+                                <label class="btn btn-secondary">
+                                    <i class="fa-solid fa-folder-open"></i> Browse Evidence File
+                                    <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/tiff,image/bmp" hidden>
+                                </label>
+                            </div>
+                        </div>
+                        <!-- Loading Overlay -->
+                        <div class="loading-overlay" id="loadingOverlay">
+                            <div class="spinner"></div>
+                            <h4 id="loadingTitle">Processing Forensic Pipeline...</h4>
+                            <p id="loadingStatusText">Executing multi-factor checks: ELA, clone detection, noise modeling, and spectral FFT.</p>
+                        </div>
+                    </div>
+
+                    <!-- Workspace Active Area (Hidden until image loaded) -->
+                    <div id="workspaceActiveArea" style="display: none;">
+                        
+                        <!-- Interactive Image Viewer & Properties Grid -->
+                        <div class="grid-workspace-layout">
+                            <!-- Image Canvas Viewer with Zoom/Pan -->
+                            <div class="card viewer-card">
+                                <div class="card-header-flex">
+                                    <div class="viewer-title">
+                                        <i class="fa-solid fa-eye"></i>
+                                        <span id="viewerFilenameTitle">Evidence Preview</span>
+                                    </div>
+                                    <div class="canvas-controls">
+                                        <button class="btn-tool" id="btnZoomIn" title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                                        <button class="btn-tool" id="btnZoomOut" title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                                        <button class="btn-tool" id="btnZoomReset" title="Fit to Screen"><i class="fa-solid fa-compress"></i> Fit</button>
+                                    </div>
+                                </div>
+                                <div class="image-viewport" id="imageViewport">
+                                    <img id="workspaceImagePreview" class="viewport-img" alt="Evidence Preview">
+                                </div>
+                                <!-- Color Channel Switcher -->
+                                <div class="channel-bar">
+                                    <span class="channel-label">Color Channel Filter:</span>
+                                    <div class="channel-buttons">
+                                        <button class="btn-chan active" data-filter="rgb">RGB Composite</button>
+                                        <button class="btn-chan" data-filter="red">Red Only</button>
+                                        <button class="btn-chan" data-filter="green">Green Only</button>
+                                        <button class="btn-chan" data-filter="blue">Blue Only</button>
+                                        <button class="btn-chan" data-filter="gray">Grayscale</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Image Properties & Real-Time Histograms -->
+                            <div class="card properties-card">
+                                <div class="card-header">
+                                    <i class="fa-solid fa-sliders"></i>
+                                    <h3>Image Properties & Metrics</h3>
+                                </div>
+                                <div class="prop-list">
+                                    <div class="prop-row"><span>File Name:</span> <b id="propFilename">-</b></div>
+                                    <div class="prop-row"><span>Resolution:</span> <b id="propDimensions">-</b></div>
+                                    <div class="prop-row"><span>Aspect Ratio:</span> <b id="propAspect">-</b></div>
+                                    <div class="prop-row"><span>Megapixels:</span> <b id="propMegapixels">-</b></div>
+                                    <div class="prop-row"><span>File Size:</span> <b id="propSize">-</b></div>
+                                    <div class="prop-row"><span>Color Mode:</span> <b id="propColorMode">-</b></div>
+                                </div>
+
+                                <div class="hash-panel">
+                                    <div class="hash-item">
+                                        <span class="h-tag">SHA-256</span>
+                                        <code id="propSha256">-</code>
+                                        <button class="btn-copy" onclick="copyText('propSha256')"><i class="fa-solid fa-copy"></i></button>
+                                    </div>
+                                    <div class="hash-item">
+                                        <span class="h-tag">dHash (pHash)</span>
+                                        <code id="propDhash">-</code>
+                                        <button class="btn-copy" onclick="copyText('propDhash')"><i class="fa-solid fa-copy"></i></button>
+                                    </div>
+                                </div>
+
+                                <!-- Color Histograms -->
+                                <div class="histograms-wrap">
+                                    <h4><i class="fa-solid fa-chart-column"></i> Color Histograms</h4>
+                                    <div class="hist-canvases">
+                                        <div class="hist-box">
+                                            <span class="hist-label">Luminance</span>
+                                            <div class="hist-bar-container" id="histLum"></div>
+                                        </div>
+                                        <div class="hist-box">
+                                            <span class="hist-label">RGB Channels</span>
+                                            <div class="hist-bar-container" id="histRgb"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="analyze-action-wrap">
+                                    <button class="btn btn-primary btn-block" id="btnExecuteAnalysis">
+                                        <i class="fa-solid fa-magnifying-glass-chart"></i> Execute Forensic Examination
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results Dashboard Area (Shown after examination) -->
+                        <div id="resultsDashboard" class="results-dashboard" style="display: none;">
+                            
+                            <!-- Case Banner & Neutral Verdict -->
+                            <div class="card verdict-banner-card" id="verdictBannerCard">
+                                <div class="banner-top-row">
+                                    <div>
+                                        <span class="case-badge" id="caseRefBadge">CASE: -</span>
+                                        <h2 id="verdictTitle">Forensic Assessment: Pending</h2>
+                                    </div>
+                                    <div class="banner-actions">
+                                        <button class="btn btn-secondary btn-sm" id="btnDownloadJson">
+                                            <i class="fa-solid fa-file-code"></i> Export JSON
+                                        </button>
+                                        <button class="btn btn-primary btn-sm" id="btnExportPdf">
+                                            <i class="fa-solid fa-file-pdf"></i> Download PDF Report
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="verdict-grid">
+                                    <div class="gauge-col">
+                                        <div class="radial-gauge" id="radialGauge">
+                                            <span class="gauge-value" id="gaugeValue">0%</span>
+                                            <span class="gauge-label">Anomaly Index</span>
+                                        </div>
+                                    </div>
+                                    <div class="verdict-details-col">
+                                        <div class="verdict-status-pill" id="verdictPill">NO ANOMALY DETECTED</div>
+                                        <p class="verdict-summary" id="verdictSummaryText">-</p>
+                                        <div class="findings-box">
+                                            <b>Empirically Observed Facts:</b>
+                                            <ul id="observedFactsList"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="disclaimer-alert">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    <span><b>Forensic Disclaimer:</b> Algorithmic findings represent mathematical deviations and statistical properties. In compliance with digital evidence standards (ISO/IEC 27037), algorithmic anomalies must be interpreted in context and do not constitute absolute legal proof of malicious manipulation.</span>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Split-Screen Comparison Workbench -->
+                            <div class="card split-view-card">
+                                <div class="card-header-flex">
+                                    <div>
+                                        <h3><i class="fa-solid fa-sliders"></i> Interactive Split-View Comparison Slider</h3>
+                                        <p class="card-subtitle">Swipe horizontally across the divider to compare original evidence against forensic overlay layers.</p>
+                                    </div>
+                                    <div class="split-controls">
+                                        <label for="overlaySelector">Overlay Layer:</label>
+                                        <select id="overlaySelector" class="form-select">
+                                            <option value="ela_heat">Error Level Analysis (Thermal Jet Heatmap)</option>
+                                            <option value="copymove">Copy-Move Cloning Keypoint Vectors</option>
+                                            <option value="noise_heat">Sensor Noise Spatial Variance Heatmap</option>
+                                            <option value="noise_res">High-Pass Noise Residual</option>
+                                            <option value="luminance">Luminance Gradient & Lighting Vectors</option>
+                                            <option value="fft">2D Fourier Magnitude Spectrum</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="split-slider-container" id="sliderContainer">
+                                    <img id="splitOriginalImg" class="split-img split-base" alt="Original Image">
+                                    <div class="split-overlay" id="splitOverlay">
+                                        <img id="splitForensicImg" class="split-img" alt="Forensic Overlay">
+                                    </div>
+                                    <div class="slider-handle" id="sliderHandle">
+                                        <div class="handle-line"></div>
+                                        <div class="handle-knob"><i class="fa-solid fa-left-right"></i></div>
+                                    </div>
+                                    <div class="slider-tag tag-left">ORIGINAL EVIDENCE</div>
+                                    <div class="slider-tag tag-right" id="overlayTagText">ELA THERMAL HEATMAP</div>
+                                </div>
+                            </div>
+
+                            <!-- Tabbed Forensic Investigation Matrix -->
+                            <div class="card tab-card">
+                                <div class="tab-nav">
+                                    <button class="tab-btn active" data-tab="tab-ela"><i class="fa-solid fa-layer-group"></i> Error Level Analysis</button>
+                                    <button class="tab-btn" data-tab="tab-copymove"><i class="fa-solid fa-clone"></i> Copy-Move Cloning</button>
+                                    <button class="tab-btn" data-tab="tab-noise"><i class="fa-solid fa-wave-square"></i> Sensor Noise PRNU</button>
+                                    <button class="tab-btn" data-tab="tab-fft"><i class="fa-solid fa-chart-line"></i> 2D FFT Frequency</button>
+                                    <button class="tab-btn" data-tab="tab-luminance"><i class="fa-solid fa-sun"></i> Luminance / Lighting</button>
+                                    <button class="tab-btn" data-tab="tab-stego"><i class="fa-solid fa-mask"></i> Stego & Bit Planes</button>
+                                    <button class="tab-btn" data-tab="tab-metadata"><i class="fa-solid fa-table-list"></i> EXIF & GPS Metadata</button>
+                                    <button class="tab-btn" data-tab="tab-carving"><i class="fa-solid fa-file-binary"></i> File Carving & Hex</button>
+                                </div>
+
+                                <!-- Tab 1: ELA -->
+                                <div class="tab-content active" id="tab-ela">
+                                    <div class="submodule-grid">
+                                        <div class="controls-panel">
+                                            <h4><i class="fa-solid fa-sliders"></i> ELA Parameters</h4>
+                                            <div class="slider-group">
+                                                <label>Recompression Quality: <b id="lblQuality">95%</b></label>
+                                                <input type="range" id="sliderQuality" min="70" max="98" value="95">
+                                            </div>
+                                            <div class="slider-group">
+                                                <label>Amplification Scale: <b id="lblScale">25x</b></label>
+                                                <input type="range" id="sliderScale" min="5" max="50" value="25">
+                                            </div>
+                                            <button id="btnRecomputeEla" class="btn btn-secondary btn-block">
+                                                <i class="fa-solid fa-rotate"></i> Recompute ELA
+                                            </button>
+                                            <div class="metrics-box">
+                                                <h5>Error Level Metrics:</h5>
+                                                <div class="metric-row"><span>Mean Error:</span> <b id="elaMean">-</b></div>
+                                                <div class="metric-row"><span>Max Error:</span> <b id="elaMax">-</b></div>
+                                                <div class="metric-row"><span>Std Deviation:</span> <b id="elaStd">-</b></div>
+                                                <div class="metric-row"><span>Anomalous Surface:</span> <b id="elaArea">-</b></div>
+                                            </div>
+                                            <div class="note-box">
+                                                <i class="fa-solid fa-info-circle"></i>
+                                                <span>Note: Natural high-contrast edges often have higher error. Spliced patches exhibit pronounced, clustered error divergence.</span>
+                                            </div>
+                                        </div>
+                                        <div class="display-panel">
+                                            <div class="side-by-side">
+                                                <div class="img-box">
+                                                    <span class="box-title">Amplified Difference</span>
+                                                    <img id="elaImg" class="forensic-preview" alt="ELA Amplified">
+                                                </div>
+                                                <div class="img-box">
+                                                    <span class="box-title">Thermal Jet Colormap</span>
+                                                    <img id="elaHeatImg" class="forensic-preview" alt="ELA Heatmap">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab 2: Copy-Move -->
+                                <div class="tab-content" id="tab-copymove">
+                                    <div class="submodule-grid">
+                                        <div class="controls-panel">
+                                            <h4><i class="fa-solid fa-vector-square"></i> Duplication Metrics</h4>
+                                            <div class="metrics-box">
+                                                <div class="metric-row"><span>Status:</span> <b id="cmStatus">-</b></div>
+                                                <div class="metric-row"><span>Keypoints Extracted:</span> <b id="cmKeypoints">-</b></div>
+                                                <div class="metric-row"><span>Candidate Pairs:</span> <b id="cmPairs">-</b></div>
+                                                <div class="metric-row"><span>Cloned Clusters Confirmed:</span> <b id="cmClusters">-</b></div>
+                                            </div>
+                                            <div class="callout" id="cmCallout"></div>
+                                        </div>
+                                        <div class="display-panel">
+                                            <div class="img-box-large">
+                                                <span class="box-title">Spatial Displacement Vectors & Cloned Regions</span>
+                                                <img id="cmImg" class="forensic-preview" alt="Copy Move Visualization">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab 3: Sensor Noise -->
+                                <div class="tab-content" id="tab-noise">
+                                    <div class="submodule-grid">
+                                        <div class="controls-panel">
+                                            <h4><i class="fa-solid fa-atom"></i> PRNU & Noise Metrics</h4>
+                                            <div class="metrics-box">
+                                                <div class="metric-row"><span>Mean Variance:</span> <b id="noiseMean">-</b></div>
+                                                <div class="metric-row"><span>Variance Std:</span> <b id="noiseStd">-</b></div>
+                                                <div class="metric-row"><span>Coefficient of Variation:</span> <b id="noiseCv">-</b></div>
+                                                <div class="metric-row"><span>Abnormal Blocks:</span> <b id="noiseBlocks">-</b></div>
+                                            </div>
+                                            <div class="callout" id="noiseCallout"></div>
+                                        </div>
+                                        <div class="display-panel">
+                                            <div class="side-by-side">
+                                                <div class="img-box">
+                                                    <span class="box-title">High-Pass Noise Residual</span>
+                                                    <img id="noiseResImg" class="forensic-preview" alt="Noise Residual">
+                                                </div>
+                                                <div class="img-box">
+                                                    <span class="box-title">Spatial Variance Heatmap</span>
+                                                    <img id="noiseHeatImg" class="forensic-preview" alt="Noise Variance Heatmap">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab 4: 2D FFT -->
+                                <div class="tab-content" id="tab-fft">
+                                    <div class="submodule-grid">
+                                        <div class="controls-panel">
+                                            <h4><i class="fa-solid fa-chart-pie"></i> Spectral Distribution</h4>
+                                            <div class="metrics-box">
+                                                <div class="metric-row"><span>Low-Frequency Energy:</span> <b id="fftLow">-</b></div>
+                                                <div class="metric-row"><span>Mid-Frequency Energy:</span> <b id="fftMid">-</b></div>
+                                                <div class="metric-row"><span>High-Frequency Energy:</span> <b id="fftHigh">-</b></div>
+                                                <div class="metric-row"><span>Harmonic Lattice Peaks:</span> <b id="fftPeaks">-</b></div>
+                                            </div>
+                                            <div class="callout" id="fftCallout"></div>
+                                        </div>
+                                        <div class="display-panel">
+                                            <div class="img-box-large">
+                                                <span class="box-title">2D Fourier Magnitude Spectrum (DC Centered, Viridis Colormap)</span>
+                                                <img id="fftImg" class="forensic-preview" alt="2D FFT Spectrum">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab 5: Luminance -->
+                                <div class="tab-content" id="tab-luminance">
+                                    <div class="submodule-grid">
+                                        <div class="controls-panel">
+                                            <h4><i class="fa-solid fa-compass"></i> Illumination Angles</h4>
+                                            <div class="metrics-box">
+                                                <div class="metric-row"><span>Top-Left Quadrant:</span> <b id="lumTL">-</b></div>
+                                                <div class="metric-row"><span>Top-Right Quadrant:</span> <b id="lumTR">-</b></div>
+                                                <div class="metric-row"><span>Bottom-Left Quadrant:</span> <b id="lumBL">-</b></div>
+                                                <div class="metric-row"><span>Bottom-Right Quadrant:</span> <b id="lumBR">-</b></div>
+                                                <div class="metric-row"><span>Lateral Divergence:</span> <b id="lumDiv">-</b></div>
+                                            </div>
+                                            <div class="callout" id="lumCallout"></div>
+                                        </div>
+                                        <div class="display-panel">
+                                            <div class="img-box-large">
+                                                <span class="box-title">Luminance Gradient Field & Dominant Direction Vectors</span>
+                                                <img id="lumImg" class="forensic-preview" alt="Luminance Gradient Field">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab 6: Stego -->
+                                <div class="tab-content" id="tab-stego">
+                                    <div class="submodule-grid">
+                                        <div class="controls-panel">
+                                            <h4><i class="fa-solid fa-binary"></i> Bit Plane Selector</h4>
+                                            <div class="button-toggle-group">
+                                                <span>Channel:</span>
+                                                <button class="btn-toggle active" data-chan="R">Red</button>
+                                                <button class="btn-toggle" data-chan="G">Green</button>
+                                                <button class="btn-toggle" data-chan="B">Blue</button>
+                                            </div>
+                                            <div class="button-toggle-group">
+                                                <span>Bit:</span>
+                                                <button class="btn-toggle active" data-bit="0">Bit 0 (LSB)</button>
+                                                <button class="btn-toggle" data-bit="7">Bit 7 (MSB)</button>
+                                            </div>
+                                            <div class="metrics-box">
+                                                <div class="metric-row"><span>Average LSB Entropy:</span> <b id="stegoEntropy">-</b></div>
+                                                <div class="metric-row"><span>Peak Channel Stego Prob:</span> <b id="stegoProb">-</b></div>
+                                                <div class="metric-row"><span>Chi-Square Disparity:</span> <b id="stegoDisparity">-</b></div>
+                                            </div>
+                                            <div class="callout" id="stegoCallout"></div>
+                                        </div>
+                                        <div class="display-panel">
+                                            <div class="img-box-large">
+                                                <span class="box-title" id="planeTitle">Red Channel - Bit 0 (Least Significant Bit)</span>
+                                                <img id="bitPlaneImg" class="forensic-preview" alt="Bit Plane Preview">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab 7: EXIF -->
+                                <div class="tab-content" id="tab-metadata">
+                                    <div class="exif-wrapper">
+                                        <div class="exif-search-bar">
+                                            <input type="text" id="exifSearch" placeholder="Filter metadata tags (e.g. Camera, Software, Date, GPS)...">
+                                        </div>
+                                        <div id="gpsAlertBox" class="gps-alert" style="display: none;">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                            <span>Embedded GPS Coordinates Found: <b id="gpsCoordsText"></b></span>
+                                            <a id="btnGpsMap" href="#" target="_blank" class="btn btn-sm btn-secondary"><i class="fa-solid fa-map-location-dot"></i> View on Google Maps</a>
+                                        </div>
+                                        <div class="table-container">
+                                            <table class="data-table" id="exifTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Tag Identifier</th>
+                                                        <th>Recorded Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="exifTableBody">
+                                                    <tr><td colspan="2">No EXIF data extracted.</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab 8: Carving -->
+                                <div class="tab-content" id="tab-carving">
+                                    <div class="carving-wrapper">
+                                        <div class="carving-header-cards">
+                                            <div class="carve-card">
+                                                <span>EOF Marker Offset</span>
+                                                <b id="carveEof">-</b>
+                                            </div>
+                                            <div class="carve-card">
+                                                <span>Trailing Appended Bytes</span>
+                                                <b id="carveTrailing">-</b>
+                                            </div>
+                                            <div class="carve-card">
+                                                <span>Payload Signature</span>
+                                                <b id="carvePayload">-</b>
+                                            </div>
+                                        </div>
+                                        <div class="hex-section">
+                                            <h4><i class="fa-solid fa-terminal"></i> Trailing Bytes Hex Dump</h4>
+                                            <pre class="hex-viewer" id="hexViewer">No trailing data appended beyond format terminator.</pre>
+                                        </div>
+                                        <div class="strings-section">
+                                            <h4><i class="fa-solid fa-font"></i> Printable Forensic Strings</h4>
+                                            <div class="strings-chips" id="stringsChips"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: HASH & IMAGE COMPARATOR -->
+                <section class="view-panel" id="view-comparator">
+                    <div class="dashboard-header-banner">
+                        <div>
+                            <h2>Dual Evidence Hash & Perceptual Comparator</h2>
+                            <p>Verify exact cryptographic matches (SHA-256) and perceptual similarity (dHash) between two digital images.</p>
+                        </div>
+                    </div>
+
+                    <div class="comparator-upload-grid">
+                        <div class="card compare-box">
+                            <h4><i class="fa-solid fa-file-image"></i> Specimen A (Primary Evidence)</h4>
+                            <div class="compare-drop" id="dropA">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <p>Drop Specimen A or Click</p>
+                                <input type="file" id="fileA" accept="image/*" hidden>
+                            </div>
+                            <div class="compare-preview-wrap" id="previewWrapA" style="display: none;">
+                                <img id="previewA" class="compare-thumb" alt="Specimen A">
+                                <span class="compare-filename" id="nameA">-</span>
+                            </div>
+                        </div>
+
+                        <div class="card compare-box">
+                            <h4><i class="fa-solid fa-file-image"></i> Specimen B (Comparative Specimen)</h4>
+                            <div class="compare-drop" id="dropB">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <p>Drop Specimen B or Click</p>
+                                <input type="file" id="fileB" accept="image/*" hidden>
+                            </div>
+                            <div class="compare-preview-wrap" id="previewWrapB" style="display: none;">
+                                <img id="previewB" class="compare-thumb" alt="Specimen B">
+                                <span class="compare-filename" id="nameB">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center" style="margin: 1.5rem 0;">
+                        <button class="btn btn-primary" id="btnRunComparison">
+                            <i class="fa-solid fa-scale-balanced"></i> Execute Forensic Comparison
+                        </button>
+                    </div>
+
+                    <!-- Comparison Results (Hidden until run) -->
+                    <div id="compareResultsArea" class="card" style="display: none;">
+                        <div class="card-header">
+                            <i class="fa-solid fa-magnifying-glass-arrow-right"></i>
+                            <h3>Comparative Analysis Findings</h3>
+                        </div>
+                        <div class="compare-metrics-grid">
+                            <div class="c-metric-card">
+                                <span>Cryptographic Identity</span>
+                                <h4 id="cmpExactVerdict">-</h4>
+                                <span class="c-sub" id="cmpExactSub">SHA-256 comparison</span>
+                            </div>
+                            <div class="c-metric-card">
+                                <span>Perceptual Similarity</span>
+                                <h4 id="cmpSimilarityPct">-</h4>
+                                <span class="c-sub">dHash Hamming distance</span>
+                            </div>
+                            <div class="c-metric-card">
+                                <span>Mean Pixel Difference</span>
+                                <h4 id="cmpMeanDiff">-</h4>
+                                <span class="c-sub">Across overlapping channels</span>
+                            </div>
+                        </div>
+
+                        <div class="diff-visual-section">
+                            <h4>Pixel Difference Map (Thermal Jet)</h4>
+                            <div class="img-box-large">
+                                <img id="cmpDiffHeatmap" class="forensic-preview" alt="Difference Heatmap">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: CASE HISTORY / ARCHIVE -->
+                <section class="view-panel" id="view-history">
+                    <div class="dashboard-header-banner">
+                        <div>
+                            <h2>Investigation Case Archive & Audit Log</h2>
+                            <p>Search, filter, inspect, and retrieve historical forensic examination records from the persistent SQLite database.</p>
+                        </div>
+                    </div>
+
+                    <div class="card filter-card">
+                        <div class="filter-flex">
+                            <div class="search-input-wrap">
+                                <i class="fa-solid fa-search"></i>
+                                <input type="text" id="historySearch" placeholder="Search by Case ID, Filename, or SHA-256 Hash...">
+                            </div>
+                            <div class="status-select-wrap">
+                                <select id="historyStatusFilter" class="form-select">
+                                    <option value="">All Statuses</option>
+                                    <option value="POTENTIAL_ANOMALY">Potential Anomaly Detected</option>
+                                    <option value="INCONCLUSIVE">Inconclusive / Mild Artifacts</option>
+                                    <option value="NO_ANOMALY">No Anomaly Detected</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-secondary btn-sm" id="btnRefreshHistory">
+                                <i class="fa-solid fa-rotate"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card table-card">
+                        <div class="table-responsive">
+                            <table class="forensic-table">
+                                <thead>
+                                    <tr>
+                                        <th>Case ID</th>
+                                        <th>Evidence File</th>
+                                        <th>Dimensions</th>
+                                        <th>SHA-256 Hash</th>
+                                        <th>Analysis Status</th>
+                                        <th>Score</th>
+                                        <th>Recorded Timestamp</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTbody">
+                                    <tr><td colspan="8" class="text-center text-muted">Loading historical investigations...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- PDF Export Modal -->
+    <div class="modal" id="pdfModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-pdf"></i> Generate Digital Forensic Examination Report</h3>
+                <button class="modal-close" id="btnCloseModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modalCaseId">Case Reference Identifier:</label>
+                    <input type="text" id="modalCaseId" class="form-control" placeholder="e.g. CASE-2026-9041A">
+                </div>
+                <div class="form-group">
+                    <label for="modalExaminer">Senior Forensic Examiner Name:</label>
+                    <input type="text" id="modalExaminer" class="form-control" value="Cyber & Media Forensics Laboratory">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btnCancelModal">Cancel</button>
+                <button class="btn btn-primary" id="btnConfirmPdf"><i class="fa-solid fa-download"></i> Download Report (PDF)</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
